@@ -21,3 +21,23 @@ export class LocalStore {
   async remove(id) { this.db.prepare('DELETE FROM notes WHERE id=?').run(id); }
   close() { this.db.close(); }
 }
+
+export class LocalPhotoStore {
+  constructor(path) {
+    this.db = new DatabaseSync(path);
+    this.db.exec('CREATE TABLE IF NOT EXISTS photos(id TEXT PRIMARY KEY, data TEXT NOT NULL); CREATE TABLE IF NOT EXISTS limits(key TEXT PRIMARY KEY, count INTEGER, expires INTEGER);');
+  }
+  async list(all = false) { return this.db.prepare('SELECT data FROM photos').all().map(r => JSON.parse(r.data)).filter(r => all || r.status === 'published').sort((a, b) => b.createdAt.localeCompare(a.createdAt)); }
+  async get(id) { const r = this.db.prepare('SELECT data FROM photos WHERE id=?').get(id); return r ? JSON.parse(r.data) : null; }
+  async save(photo) { this.db.prepare('INSERT OR REPLACE INTO photos VALUES (?,?)').run(photo.id, JSON.stringify(photo)); }
+  async allow(key, maximum, seconds = 600) {
+    const now = Date.now(); this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = this.db.prepare('SELECT count,expires FROM limits WHERE key=?').get(key);
+      if (row && row.expires > now && row.count >= maximum) { this.db.exec('ROLLBACK'); return false; }
+      this.db.prepare('INSERT OR REPLACE INTO limits VALUES (?,?,?)').run(key, row && row.expires > now ? row.count + 1 : 1, row && row.expires > now ? row.expires : now + seconds * 1000);
+      this.db.exec('COMMIT'); return true;
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
+  }
+  close() { this.db.close(); }
+}
