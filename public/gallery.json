@@ -1,0 +1,137 @@
+[
+  {
+    "id": "the-invincibles",
+    "src": "/assets/photos/the-invincibles.webp",
+    "thumb": "/assets/photos/the-invincibles-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "All of us. One unforgettable chapter.",
+    "category": "Class days"
+  },
+  {
+    "id": "the-women",
+    "src": "/assets/photos/the-women.webp",
+    "thumb": "/assets/photos/the-women-small.webp",
+    "width": 1152,
+    "height": 1536,
+    "caption": "A chapter with good company.",
+    "category": "Class days"
+  },
+  {
+    "id": "suited-up",
+    "src": "/assets/photos/suited-up.webp",
+    "thumb": "/assets/photos/suited-up-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "Looking the part.",
+    "category": "Class days"
+  },
+  {
+    "id": "campus-days",
+    "src": "/assets/photos/campus-days.webp",
+    "thumb": "/assets/photos/campus-days-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "The days between the deadlines.",
+    "category": "Class days"
+  },
+  {
+    "id": "field-days",
+    "src": "/assets/photos/field-days.webp",
+    "thumb": "/assets/photos/field-days-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "Out of the classroom. Into the field.",
+    "category": "Hands-on"
+  },
+  {
+    "id": "making-it",
+    "src": "/assets/photos/making-it.webp",
+    "thumb": "/assets/photos/making-it-small.webp",
+    "width": 1536,
+    "height": 864,
+    "caption": "Learning by getting our hands into it.",
+    "category": "Hands-on"
+  },
+  {
+    "id": "workshop",
+    "src": "/assets/photos/workshop.webp",
+    "thumb": "/assets/photos/workshop-small.webp",
+    "width": 1152,
+    "height": 1536,
+    "caption": "It made more sense when we built it.",
+    "category": "Hands-on"
+  },
+  {
+    "id": "at-the-bench",
+    "src": "/assets/photos/at-the-bench.webp",
+    "thumb": "/assets/photos/at-the-bench-small.webp",
+    "width": 1152,
+    "height": 1536,
+    "caption": "A little focus. A lot of learning.",
+    "category": "Hands-on"
+  },
+  {
+    "id": "jersey-days",
+    "src": "/assets/photos/jersey-days.webp",
+    "thumb": "/assets/photos/jersey-days-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "Same team, different jerseys.",
+    "category": "Celebrations"
+  },
+  {
+    "id": "team-spirit",
+    "src": "/assets/photos/team-spirit.webp",
+    "thumb": "/assets/photos/team-spirit-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "The wins we shared.",
+    "category": "Celebrations"
+  },
+  {
+    "id": "between-classes",
+    "src": "/assets/photos/between-classes.webp",
+    "thumb": "/assets/photos/between-classes-small.webp",
+    "width": 1536,
+    "height": 1152,
+    "caption": "The ordinary days became the good memories.",
+    "category": "Class days"
+  },
+  {
+    "id": "familiar-faces",
+    "src": "/assets/photos/familiar-faces.webp",
+    "thumb": "/assets/photos/familiar-faces-small.webp",
+    "width": 1536,
+    "height": 727,
+    "caption": "Familiar faces. Unforgettable days.",
+    "category": "Class days"
+  },
+  {
+    "id": "together",
+    "src": "/assets/photos/together.webp",
+    "thumb": "/assets/photos/together-small.webp",
+    "width": 1536,
+    "height": 727,
+    "caption": "Better, together.",
+    "category": "Class days"
+  },
+  {
+    "id": "a-pause",
+    "src": "/assets/photos/a-pause.webp",
+    "thumb": "/assets/photos/a-pause-small.webp",
+    "width": 1152,
+    "height": 1536,
+    "caption": "A pause between everything.",
+    "category": "Class days"
+  },
+  {
+    "id": "learning-together",
+    "src": "/assets/photos/learning-together.webp",
+    "thumb": "/assets/photos/learning-together-small.webp",
+    "width": 1536,
+    "height": 863,
+    "caption": "Figuring it out, together.",
+    "category": "Hands-on"
+  }
+]

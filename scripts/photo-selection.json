@@ -1,0 +1,29 @@
+{
+  "used": [
+    "01-9207d7d6-eac4-4062-82ab-e102f033078e-1_all_2706.jpg",
+    "10-4416.jpg",
+    "03-4471.jpg",
+    "04-9207d7d6-eac4-4062-82ab-e102f033078e-1_all_2857.jpg",
+    "03-9207d7d6-eac4-4062-82ab-e102f033078e-1_all_2803.jpg",
+    "06-8387.jpg",
+    "07-68011.jpg",
+    "09-4284.jpg",
+    "02-9207d7d6-eac4-4062-82ab-e102f033078e-1_all_2784.jpg",
+    "08-3511.jpg",
+    "05-105521.jpg",
+    "08-8528.jpg",
+    "09-8352.jpg",
+    "07-8640.jpg",
+    "05-8369.jpg"
+  ],
+  "reference_only": [
+    "01-1336622.jpg",
+    "02-1238518.jpg"
+  ],
+  "omitted": [
+    "04-8364.jpg",
+    "06-68039.jpg",
+    "10-5740.jpg"
+  ],
+  "reason": "Standalone object shots and the narrow, soft laboratory image add less to the selected class story. Original uploads are untouched."
+}
