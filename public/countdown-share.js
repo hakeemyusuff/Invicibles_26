@@ -8,7 +8,8 @@ export function drawCountdownShare(canvas, { now = Date.now(), photo, host = '' 
   ctx.textAlign = 'right'; ctx.font = '500 18px "DM Sans"'; ctx.fillText('AEE / UNIVERSITY OF IBADAN', 1016, 80); ctx.textAlign = 'left';
   ctx.fillStyle = '#6b8767'; ctx.fillRect(64, 116, 952, 1);
   ctx.fillStyle = '#f6f2e7'; ctx.font = '700 174px "Barlow Condensed"';
-  ctx.fillText(t.complete ? 'PENS DOWN.' : 'ONE LAST', 58, 290); ctx.fillText(t.complete ? 'WE MADE IT.' : 'PAPER.', 58, 450);
+  ctx.fillText(t.complete ? 'PENS DOWN.' : 'THE FINAL', 58, 290, 952);
+  ctx.fillText(t.complete ? 'WE MADE IT.' : 'STRETCH.', 58, 450, 952);
   ctx.fillStyle = '#e3f49f'; ctx.font = 'italic 400 58px "DM Serif Display"';
   ctx.textAlign = 'right'; ctx.fillText(t.complete ? 'On to what’s next.' : 'Then, the world.', 1016, 510); ctx.textAlign = 'left';
   ctx.save(); ctx.beginPath(); ctx.rect(64, 565, 952, 600); ctx.clip();
@@ -60,7 +61,8 @@ export function initCountdownShare(toast) {
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png')); if (!blob) throw new Error('export failed');
       const filename = 'Invincibles26-countdown.png', file = new File([blob], filename, { type: 'image/png' });
       if (share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'The Invincibles ’26 — the countdown', text: `One last paper. A whole new chapter. Follow the live countdown: ${liveLink.href}` });
+        const message = remainingTime().complete ? 'Pens down. We made it.' : 'The final stretch. A whole new chapter.';
+        await navigator.share({ files: [file], title: 'The Invincibles ’26 — the countdown', text: `${message} Follow the live countdown: ${liveLink.href}` });
         $('countdown-export-status').textContent = 'Snapshot shared. The live link is included in the message.';
       } else {
         saveBlob(blob, filename); $('countdown-export-status').textContent = 'Snapshot saved at 1080 × 1920. Ready for your Status.';

@@ -5,7 +5,7 @@ import { initCountdownShare } from './countdown-share.js';
 const $=selector=>document.querySelector(selector);
 let toastTimer;
 function toast(text){const el=$('#toast');el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,4500);}
-async function sharePage(){const url=new URL(location.href);url.hash='';try{if(navigator.share)await navigator.share({title:'The Invincibles ’26',text:'One last paper. A whole new chapter. Make your sign-out card and leave a memory.',url:url.href});else if(navigator.clipboard){await navigator.clipboard.writeText(url.href);toast('Link copied. Send it to your people.');}else toast('Copy this page’s address to share it.');}catch(error){if(error.name!=='AbortError')toast('Copy this page’s address to share it.');}}
+async function sharePage(){const url=new URL(location.href);url.hash='';try{if(navigator.share)await navigator.share({title:'The Invincibles ’26',text:'The final stretch. A whole new chapter. Make your sign-out card and leave a memory.',url:url.href});else if(navigator.clipboard){await navigator.clipboard.writeText(url.href);toast('Link copied. Send it to your people.');}else toast('Copy this page’s address to share it.');}catch(error){if(error.name!=='AbortError')toast('Copy this page’s address to share it.');}}
 $('#share-footer').addEventListener('click',sharePage);initCountdownShare(toast);
 $('#save-date').addEventListener('click',()=>saveBlob(new Blob([calendarFile()],{type:'text/calendar;charset=utf-8'}),'Invincibles26-Signout.ics'));
 let celebrated=false;
