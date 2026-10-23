@@ -18,7 +18,7 @@ export function wrapText(ctx, text, maxWidth) {
 }
 function fittedLines(ctx, text, width, maxLines, startSize, family, weight = 700) {
   let size = startSize, lines;
-  do { ctx.font = `${weight} ${size}px "${family}"`; lines = wrapText(ctx, text, width); size -= 1; } while (lines.length > maxLines && size > 22);
+  do { ctx.font = `${weight} ${size}px "${family}"`; lines = wrapText(ctx, text, width); size -= 1; } while (lines.length > maxLines && size > 14);
   return { size: size + 1, lines };
 }
 function line(ctx, x1, y1, x2, y2, color) { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke(); }
@@ -36,7 +36,8 @@ export function drawCard(canvas, state) {
   line(ctx, 64, 100, 1016, 100, state.theme === 'editorial' ? '#c8ceba' : '#ffffff45');
   ctx.font = '700 103px "Barlow Condensed"'; ctx.fillStyle = p.ink; ctx.fillText('ONE OF THE', 64, 207); ctx.fillText('INVINCIBLES.', 64, 306);
   ctx.save();ctx.textAlign='right';ctx.font='italic 400 75px "DM Serif Display"';ctx.fillStyle=state.theme==='editorial'?'#6b8053':p.accent;ctx.fillText('’26',1016,294);ctx.restore();
-  const frame = { x: 64, y: 350, width: 952, height: story ? 990 : 510 };
+  // Both export sizes use a true 3:4 portrait window.
+  const frame = story ? { x: 160, y: 350, width: 760, height: 1013.333 } : { x: 64, y: 350, width: 576, height: 768 };
   ctx.save();ctx.beginPath();ctx.rect(frame.x,frame.y,frame.width,frame.height);ctx.clip();ctx.fillStyle=p.photoBg;ctx.fillRect(frame.x,frame.y,frame.width,frame.height);
   if (state.image) {
     const scale = Math.max(frame.width / state.image.width, frame.height / state.image.height) * state.zoom;
@@ -46,20 +47,28 @@ export function drawCard(canvas, state) {
     const y = frame.y - availableY / 2 + state.offsetY * availableY / 2;
     ctx.drawImage(state.image, x, y, w, ih);
   } else {
-    ctx.fillStyle = p.photoInk; ctx.globalAlpha = .17; ctx.beginPath();ctx.arc(540,frame.y+frame.height*.38,frame.height*.17,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(540,frame.y+frame.height*.98,frame.width*.27,frame.height*.36,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-    ctx.textAlign='center';ctx.font='400 25px "DM Sans"';ctx.fillStyle=p.ink;ctx.fillText('YOUR PORTRAIT. YOUR STORY.',540,frame.y+frame.height*.83);ctx.font='400 17px "DM Sans"';ctx.fillText('Add a photograph to make this yours.',540,frame.y+frame.height*.83+35);ctx.textAlign='left';
+    const centre = frame.x + frame.width / 2;
+    ctx.fillStyle = p.photoInk; ctx.globalAlpha = .17; ctx.beginPath();ctx.arc(centre,frame.y+frame.height*.33,frame.width*.17,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(centre,frame.y+frame.height*.79,frame.width*.36,frame.height*.29,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    ctx.textAlign='center';ctx.font='500 20px "DM Sans"';ctx.fillStyle=p.ink;ctx.fillText('YOUR PORTRAIT. YOUR STORY.',centre,frame.y+frame.height*.83);ctx.font='400 17px "DM Sans"';ctx.fillText('Add a photograph to make this yours.',centre,frame.y+frame.height*.83+35);ctx.textAlign='left';
   }
   ctx.restore();
-  // A small stamp is kept outside the centre of the portrait.
-  ctx.save();ctx.translate(842,frame.y+frame.height-26);ctx.rotate(-.055);ctx.fillStyle=p.accent;ctx.fillRect(-140,-53,288,103);ctx.fillStyle='#173c32';ctx.textAlign='center';ctx.font='600 14px "DM Sans"';ctx.fillText('SIGNING OUT',3,-20);ctx.font='700 42px "Barlow Condensed"';ctx.fillText('29 OCTOBER 2026',3,22);ctx.restore();
-  const nameY = frame.y + frame.height + (story ? 100 : 94);
+  const nameX = story ? 64 : 688, nameY = story ? 1460 : 460;
+  if (!story) {
+    ctx.fillStyle=p.muted;ctx.font='600 17px "DM Sans"';ctx.fillText('THIS CHAPTER',nameX,373);ctx.fillText('BELONGS TO',nameX,399);
+    star(ctx,984,1090,23,state.theme==='editorial'?'#496d45':p.accent);
+  }
   const name = (state.name.trim() || 'Your name here').toUpperCase();
-  ctx.fillStyle = p.ink; const fitted = fittedLines(ctx,name,952,2,story?89:76,'Barlow Condensed');
-  fitted.lines.forEach((l,i)=>ctx.fillText(l,64,nameY+i*fitted.size*1.05));
-  const quoteY = Math.max(nameY + fitted.lines.length*fitted.size*1.05 + 23, story ? 1610 : 1110);
+  ctx.fillStyle = p.ink; const fitted = fittedLines(ctx,name,story?952:328,story?2:5,story?84:73,'Barlow Condensed');
+  fitted.lines.forEach((l,i)=>ctx.fillText(l,nameX,nameY+i*fitted.size*1.05));
+  const quoteY = Math.max(nameY + fitted.lines.length*fitted.size*1.05 + 48, story ? 1662 : 850);
   const quote = state.quote.trim() || 'The next chapter is mine to write.';
-  const quoteFit = fittedLines(ctx,quote,900,3,story?35:30,'DM Serif Display',400);
-  ctx.fillStyle = p.muted;quoteFit.lines.forEach((l,i)=>ctx.fillText(l,64,quoteY+i*quoteFit.size*1.3));
+  const quoteFit = fittedLines(ctx,quote,story?900:320,story?3:6,story?32:29,'DM Serif Display',400);
+  ctx.fillStyle = p.muted;quoteFit.lines.forEach((l,i)=>ctx.fillText(l,nameX,quoteY+i*quoteFit.size*1.3));
+  if (story) {
+    ctx.save();ctx.translate(838,1348);ctx.rotate(-.055);ctx.fillStyle=p.accent;ctx.fillRect(-140,-53,288,103);ctx.fillStyle='#173c32';ctx.textAlign='center';ctx.font='600 14px "DM Sans"';ctx.fillText('SIGNING OUT',3,-20);ctx.font='700 42px "Barlow Condensed"';ctx.fillText('29 OCTOBER 2026',3,22);ctx.restore();
+  } else {
+    ctx.fillStyle=p.accent;ctx.fillRect(64,1150,952,57);ctx.fillStyle='#173c32';ctx.font='600 20px "DM Sans"';ctx.fillText('SIGNING OUT  /  29 OCTOBER 2026',86,1187);ctx.textAlign='right';ctx.font='italic 400 24px "DM Serif Display"';ctx.fillText('On to what’s next.',994,1187);ctx.textAlign='left';
+  }
   line(ctx,64,h-114,1016,h-114,state.theme==='editorial'?'#c8ceba':'#ffffff45');
   ctx.fillStyle=p.ink;ctx.font='500 18px "DM Sans"';ctx.fillText('AGRICULTURAL & ENVIRONMENTAL ENGINEERING',64,h-71);ctx.font='400 16px "DM Sans"';ctx.fillStyle=p.muted;ctx.fillText('CLASS OF 2026  ·  ONE CLASS. A THOUSAND BEGINNINGS.',64,h-38);
   star(ctx,980,h-63,23,state.theme==='editorial'?'#496d45':p.accent);

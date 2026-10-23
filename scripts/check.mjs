@@ -1,7 +1,7 @@
 import { readFile, access } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
-const files=['public/app.js','public/card.js','public/utils.js','public/admin.js','api/memories.js','lib/memory-service.mjs'];
+const files=['public/app.js','public/card.js','public/utils.js','public/admin.js','public/photo-upload.js','public/countdown-share.js','api/memories.js','api/photos.js','lib/memory-service.mjs','lib/photo-service.mjs','lib/photo-images.mjs','scripts/dev.mjs'];
 for(const file of files)execFileSync(process.execPath,['--check',file]);
 const html=await readFile('public/index.html','utf8');
 for(const match of html.matchAll(/(?:src|href)="(\/[^"#?]+)"/g)){if(match[1]==='/')continue;await access(`public${match[1]}`);}

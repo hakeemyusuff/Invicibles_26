@@ -1,31 +1,44 @@
 import { remainingTime, safeRead, safeSave, saveBlob, calendarFile } from './utils.js';
 import { initCardMaker } from './card.js';
+import { initPhotoUploads } from './photo-upload.js';
+import { initCountdownShare } from './countdown-share.js';
 const $=selector=>document.querySelector(selector);
 let toastTimer;
 function toast(text){const el=$('#toast');el.textContent=text;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,4500);}
 async function sharePage(){const url=new URL(location.href);url.hash='';try{if(navigator.share)await navigator.share({title:'The Invincibles ’26',text:'One last paper. A whole new chapter. Make your sign-out card and leave a memory.',url:url.href});else if(navigator.clipboard){await navigator.clipboard.writeText(url.href);toast('Link copied. Send it to your people.');}else toast('Copy this page’s address to share it.');}catch(error){if(error.name!=='AbortError')toast('Copy this page’s address to share it.');}}
-$('#share-page').addEventListener('click',sharePage);$('#share-footer').addEventListener('click',sharePage);
+$('#share-footer').addEventListener('click',sharePage);initCountdownShare(toast);
 $('#save-date').addEventListener('click',()=>saveBlob(new Blob([calendarFile()],{type:'text/calendar;charset=utf-8'}),'Invincibles26-Signout.ics'));
 let celebrated=false;
 function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(let i=0;i<55;i++){const el=document.createElement('span');el.className='confetti-piece';el.style.left=`${Math.random()*100}%`;el.style.background=['#e1f39d','#ed784b','#f5f3e9','#5b8657'][i%4];el.style.animationDelay=`${Math.random()*.7}s`;el.style.rotate=`${Math.random()*180}deg`;document.body.append(el);setTimeout(()=>el.remove(),4500);}}
 function updateClock(){const t=remainingTime();for(const unit of ['days','hours','minutes','seconds'])$(`#${unit}`).textContent=String(t[unit]).padStart(2,'0');if(t.complete&&!celebrated){celebrated=true;$('#countdown-title').innerHTML='Pens down.<br><em>We made it.</em>';$('#clock-caption').textContent='The next chapter is ours. Together, invincible.';$('#countdown-description').innerHTML='The Invincibles ’26<br><strong>29 October 2026 · University of Ibadan</strong>';document.body.classList.add('celebrating');confetti();}}
 updateClock();setInterval(updateClock,1000);
 
-let photos=[],filtered=[],showAll=false,currentPhoto=0;
+let photos=[],curated=[],contributions=[],filtered=[],showAll=false,currentPhoto=0,loadingPhotos=false;
 function renderGallery(filter='All'){
   filtered=photos.filter(p=>filter==='All'||p.category===filter);const visible=showAll?filtered:filtered.slice(0,6);$('#gallery').replaceChildren();
   visible.forEach(p=>{const button=document.createElement('button');button.type='button';button.className='gallery-item';button.dataset.photo=p.id;button.setAttribute('aria-label',`Open photograph: ${p.caption}`);const photo=document.createElement('div');photo.className='gallery-photo';const img=document.createElement('img');img.src=p.thumb;img.width=p.width;img.height=p.height;img.alt=p.caption;img.loading='lazy';img.decoding='async';const open=document.createElement('span');open.className='image-open';open.textContent='↗';open.setAttribute('aria-hidden','true');photo.append(img,open);const caption=document.createElement('div');caption.className='gallery-caption';const text=document.createElement('span');text.textContent=p.caption;const tag=document.createElement('span');tag.textContent=p.category;caption.append(text,tag);button.append(photo,caption);button.addEventListener('click',()=>openPhoto(filtered.indexOf(p)));$('#gallery').append(button);});
   $('#photo-count').textContent=`${filtered.length} moments, countless stories`;$('#gallery-more').hidden=showAll||filtered.length<=6;
 }
-function displayPhoto(){const p=filtered[currentPhoto];$('#lightbox-photo').src=p.src;$('#lightbox-photo').alt=p.caption;$('#lightbox-caption').textContent=`${p.caption}  ·  ${currentPhoto+1} / ${filtered.length}`;}
+function displayPhoto(){const p=filtered[currentPhoto];if(!p)return;$('#lightbox-photo').src=p.src;$('#lightbox-photo').alt=p.caption;$('#lightbox-caption').textContent=`${p.caption}${p.contributed?` · Shared by ${p.name}`:''}  ·  ${currentPhoto+1} / ${filtered.length}`;}
 function openPhoto(index){currentPhoto=index;displayPhoto();$('#lightbox').showModal();}
 function nextPhoto(direction){currentPhoto=(currentPhoto+direction+filtered.length)%filtered.length;displayPhoto();}
 $('#close-lightbox').addEventListener('click',()=>$('#lightbox').close());$('#previous-photo').addEventListener('click',()=>nextPhoto(-1));$('#next-photo').addEventListener('click',()=>nextPhoto(1));
 $('#lightbox').addEventListener('keydown',e=>{if(e.key==='ArrowLeft')nextPhoto(-1);if(e.key==='ArrowRight')nextPhoto(1);});
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));showAll=false;renderGallery(button.dataset.filter);}));
 $('#gallery-more').addEventListener('click',()=>{showAll=true;renderGallery(document.querySelector('[data-filter][aria-pressed=true]').dataset.filter);});
-for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
-Promise.allSettled([fetch('/gallery.json').then(r=>r.json()).then(data=>{photos=data;renderGallery();}),fetch('/class-names.json').then(r=>r.json()).then(names=>{for(const name of names){const option=document.createElement('option');option.value=name;$('#class-names').append(option);}})]).then(results=>{if(results[0].status==='rejected')$('#gallery').textContent='The photo album could not load. Please refresh the page.';});
+for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',event=>{if(event.target===dialog&&dialog.dataset.busy!=='true'){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
+function mergePhotos(){photos=[...contributions,...curated];renderGallery(document.querySelector('[data-filter][aria-pressed=true]').dataset.filter);}
+async function loadPhotos(){
+  if(loadingPhotos)return;loadingPhotos=true;$('#refresh-photos').disabled=true;
+  try{
+    const response=await fetch('/api/photos',{cache:'no-store',signal:AbortSignal.timeout(15000)});const data=await response.json();if(!response.ok)throw new Error();
+    contributions=data.photos||[];mergePhotos();$('#open-photos').disabled=!data.available;
+    $('#gallery-status').textContent=data.development?'Preview album · test uploads stay separate from your live site.':data.available?'Class contributions are open. Bring your photos and the class password.':'The album is open to view. Photo contributions will open here soon.';
+  }catch{$('#gallery-status').textContent='New photos couldn’t load. Tap Refresh photos to try again.';$('#open-photos').disabled=true;}
+  finally{loadingPhotos=false;$('#refresh-photos').disabled=false;}
+}
+initPhotoUploads({toast,refresh:loadPhotos,onAdded:photo=>{contributions=[photo,...contributions.filter(p=>p.id!==photo.id)];showAll=false;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter==='All')));mergePhotos();}});
+Promise.allSettled([fetch('/gallery.json').then(r=>r.json()).then(data=>{curated=data;mergePhotos();}),fetch('/class-names.json').then(r=>r.json()).then(names=>{for(const name of names){const option=document.createElement('option');option.value=name;$('#class-names').append(option);}})]).then(results=>{if(results[0].status==='rejected')$('#gallery-status').textContent='The original photo album could not load. Please refresh the page.';});loadPhotos();
 initCardMaker(toast);
 
 let wallMeta={available:false},loadingWall=false;
